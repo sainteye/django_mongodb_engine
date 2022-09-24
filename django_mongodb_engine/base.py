@@ -14,6 +14,10 @@ from pymongo.collection import Collection
 from pymongo.mongo_client import MongoClient
 from pymongo.mongo_replica_set_client import MongoReplicaSetClient
 
+import six
+if six.PY3:
+    unicode = str
+
 # handle pymongo backward compatibility
 try:
     from bson.objectid import ObjectId
@@ -49,7 +53,7 @@ class DatabaseOperations(NonrelDatabaseOperations):
         return 254
 
     def check_aggregate_support(self, aggregate):
-        import aggregations
+        from . import aggregations
         try:
             getattr(aggregations, aggregate.__class__.__name__)
         except AttributeError:
@@ -238,7 +242,7 @@ class DatabaseWrapper(NonrelDatabaseWrapper):
                                     'update': flags}
 
         # Lower-case all OPTIONS keys.
-        for key in options.iterkeys():
+        for key in list(options):
             options[key.lower()] = options.pop(key)
 
         read_preference = options.get('read_preference')
@@ -269,7 +273,8 @@ class DatabaseWrapper(NonrelDatabaseWrapper):
             self.database = self.connection[db_name]
         except TypeError:
             exc_info = sys.exc_info()
-            raise ImproperlyConfigured, exc_info[1], exc_info[2]
+            # raise ImproperlyConfigured, exc_info[1], exc_info[2]
+            raise ImproperlyConfigured(exc_info[1], exc_info[2])
 
         if user and password:
             if not self.database.authenticate(user, password):

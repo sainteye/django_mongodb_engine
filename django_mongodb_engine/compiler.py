@@ -82,10 +82,10 @@ def safe_call(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except DuplicateKeyError, e:
-            raise IntegrityError, IntegrityError(smart_str(e)), sys.exc_info()[2]
-        except PyMongoError, e:
-            raise DatabaseError, DatabaseError(smart_str(e)), sys.exc_info()[2]
+        except DuplicateKeyError as e:
+            raise IntegrityError(smart_str(e))
+        except PyMongoError as e:
+            raise DatabaseError(smart_str(e))
     return wrapper
 
 
@@ -300,7 +300,7 @@ class SQLCompiler(NonrelCompiler):
         Handles aggregate/count queries.
         """
         collection = self.get_collection()
-        aggregations = self.query.aggregate_select.items()
+        aggregations = list(self.query.aggregate_select)
 
         if len(aggregations) == 1 and isinstance(aggregations[0][1],
                                                  sqlaggregates.Count):
