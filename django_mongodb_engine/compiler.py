@@ -300,7 +300,7 @@ class SQLCompiler(NonrelCompiler):
         Handles aggregate/count queries.
         """
         collection = self.get_collection()
-        aggregations = list(self.query.aggregate_select)
+        aggregations = list(self.query.aggregate_select.items())
 
         if len(aggregations) == 1 and isinstance(aggregations[0][1],
                                                  sqlaggregates.Count):
